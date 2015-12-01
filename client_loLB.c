@@ -4,9 +4,12 @@
 #include<arpa/inet.h>
 #include<string.h>
 #include<fcntl.h>
+#include<signal.h>
 
 #define GET_CPU_USAGE_DELAY 500000
+static int ctrl_c = 0;
 float getCpuUsage(int delay);
+void catchSig(int dummy);
 
 int main(int argc, char *argv[])
 {
@@ -15,7 +18,9 @@ int main(int argc, char *argv[])
 	char *temp = malloc(sizeof(char)*1000);
 	
 	int debugflag = 0;
-	int ctrlN;	
+	int ctrlN;
+
+	signal(SIGINT, catchSig);	
 
 	printf("Setting up env...\nController # :");
 	scanf("%d", &ctrlN);
@@ -43,8 +48,7 @@ int main(int argc, char *argv[])
 
 	int val = fcntl(sock, F_GETFL, 0);
 	fcntl(sock, F_SETFL, val | O_NONBLOCK);
-//	char *hiMsg = "Hi, server.\n";
-//	write(sock, hiMsg, strlen(hiMsg));
+	
 	while(1)
 	{
 		if( read(sock, temp, 999) )
@@ -53,7 +57,7 @@ int main(int argc, char *argv[])
 			bzero(temp, 999);
 		}
 
-		if( debugflag < 1000 )
+		if( ctrl_c == 0 )
 		{
 			float usage = getCpuUsage(GET_CPU_USAGE_DELAY);
 			char usageMsg[30];
@@ -61,16 +65,19 @@ int main(int argc, char *argv[])
         		write(sock, usageMsg, strlen(usageMsg));
 			debugflag++;
 		}
-		else
-		{
+		else // received ctrl+c
+		{	
+			char clsConMsg[40];
+			snprintf(clsConMsg, sizeof(clsConMsg), "Ctrl #%d disconnect", ctrlN);
+			write(sock, clsConMsg, strlen(clsConMsg));
+			printf("Close connection\n");
 			close(sock);
 			break;
 		}
-		//read(sock, temp, 1000);
-		//fprintf(stdout, "%s", temp);
 		
 		
 	}
+	printf("Shutting down client...\n");
 	return 0;
 
 }
@@ -98,3 +105,7 @@ float getCpuUsage(int delay)
     return load * 100;
 }
 
+void catchSig(int dummy)
+{
+	ctrl_c = 1;
+}

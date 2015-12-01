@@ -57,13 +57,11 @@ int main(int argc, char *argv[])
 				fprintf(stderr,"accept: %s.\n", strerror(errno));
 				exit(EXIT_FAILURE);
 			}	
-			fprintf(stdout, "Client conneted, fd=%d.\n",ssock);
+			fprintf(stdout, "\nClient conneted, fd=%d.\n",ssock);
 			FD_SET(ssock, &afds);
 
 			/**  communication  **/
-			//read( ssock, temp, 1000 );
-			//fprintf(stdout, "%s", temp);
-			char *sucMsg = "Server: Server connected sucess.\n\0";
+			char *sucMsg = "\nServer: Server connected sucess.\n\0";
 			write( ssock, sucMsg, strlen(sucMsg) );
 			
 			continue;
@@ -75,9 +73,19 @@ int main(int argc, char *argv[])
 			{		
 				printf("debugflag=%d\n", debugflag);
 				read(fd, temp, 999);
-				printf("temp=%s, fd=%d", temp, fd);
-				debugflag++;
-				bzero(temp, 1);
+				if(strstr(temp, "disconnect") != NULL)
+				{
+					printf("%s\n", temp);
+					close(fd);
+					FD_CLR(fd, &afds);
+					bzero(temp, 999);
+				}
+				else
+				{
+					printf("%s (fd=%d)", temp, fd);
+					debugflag++;
+					bzero(temp, 999);
+				}
 			}
 			if(fd != msock && FD_ISSET(fd, &wfds))
 			{
