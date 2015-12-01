@@ -19,11 +19,18 @@ int main(int argc, char *argv[])
 	
 	int debugflag = 0;
 	int ctrlN;
-
+	
+	if(argv[1] == NULL || argv[2] == NULL || argv[3] == NULL)
+	{
+		printf("Usage: ./<appname> <server ip> <server port> <index of client>\n");
+		exit(EXIT_FAILURE);
+	}	
+	
+	ctrlN = atoi(argv[3]);
 	signal(SIGINT, catchSig);	
 
-	printf("Setting up env...\nController # :");
-	scanf("%d", &ctrlN);
+	//printf("Setting up env...\nController # :");
+	//scanf("%d", &ctrlN);
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if(sock == -1)
@@ -34,9 +41,9 @@ int main(int argc, char *argv[])
 	else 
 	{	fprintf(stdout, "Socket created,\n");	}
 	
-	server.sin_addr.s_addr = inet_addr("127.0.0.1");
+	server.sin_addr.s_addr = inet_addr(argv[1]);
 	server.sin_family = AF_INET;
-	server.sin_port = htons((u_short)atoi(argv[1]));
+	server.sin_port = htons((u_short)atoi(argv[2]));
 
 	if(connect(sock, (struct sockaddr*)&server, sizeof(server)) < 0)
 	{
