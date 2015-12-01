@@ -14,7 +14,11 @@ int main(int argc, char *argv[])
 	struct sockaddr_in server;
 	char *temp = malloc(sizeof(char)*1000);
 	
-	int debugflag = 0;	
+	int debugflag = 0;
+	int ctrlN;	
+
+	printf("Setting up env...\nController # :");
+	scanf("%d", &ctrlN);
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if(sock == -1)
@@ -52,8 +56,8 @@ int main(int argc, char *argv[])
 		if( debugflag < 1000 )
 		{
 			float usage = getCpuUsage(GET_CPU_USAGE_DELAY);
-			char usageMsg[20];
-		        snprintf(usageMsg, sizeof(usageMsg), "CPU %0.2f", usage);
+			char usageMsg[30];
+		        snprintf(usageMsg, sizeof(usageMsg), "Ctrl #%d CPU %0.2f", ctrlN, usage);
         		write(sock, usageMsg, strlen(usageMsg));
 			debugflag++;
 		}

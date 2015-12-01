@@ -75,17 +75,14 @@ int main(int argc, char *argv[])
 			{		
 				printf("debugflag=%d\n", debugflag);
 				read(fd, temp, 999);
-				printf("temp=%s\n, fd=%d", temp, fd);
+				printf("temp=%s, fd=%d", temp, fd);
 				debugflag++;
 				bzero(temp, 1);
 			}
 			if(fd != msock && FD_ISSET(fd, &wfds))
 			{
-				if( (a = debugflag % 50) == 0)
-				{
-					write(fd, "Msg from server\n", strlen("Msg from server\n"));
-					printf("write\n");
-				}		
+				//char *replyMsg = "Server reply\n\0";
+				//write(fd, replyMsg , strlen(replyMsg));		
 			}
 		}
 	}
